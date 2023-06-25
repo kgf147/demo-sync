@@ -2,29 +2,18 @@ name: Run ADO to GitHub Sync with PowerShell
 
 on:
   workflow_dispatch:
-
+  
 jobs:
   build:
-    runs-on: windows-latest
-    
+    runs-on: windows-2019
     steps:
-    - name: Check out repo        
-      uses: actions/checkout@v2
-      
-    - name: Setup PowerShell
-      run: |
-        $url = "https://github.com/PowerShell/PowerShell/releases/download/v7.2.0/PowerShell-7.2.0-win-x64.msi"
-        $output = "$Env:TEMP\PowerShell.msi"
-        Invoke-WebRequest -Uri $url -OutFile $output
-        Start-Process -FilePath msiexec.exe -ArgumentList "/i $output /quiet /qn /norestart" -Wait
-
-      
-    - name: Run Sync Script
-      run: |
-        $ListObject = Get-Content -Path "${{ github.workspace }}/ADORepoList.json" | ConvertFrom-Json
-        foreach ($object in $ListObject.RepoList) {
-          Write-Host "--------------- Current syncing for repo $($object.AzureRepoName) ----------------------------------"
-          Set-Location ${{ github.workspace }}
-          & '.\SynADOtoGitHub.ps1' -GitHubDestinationPAT ${{ secrets.GITHUBDESTINATIONPAT }} -ADOSourcePAT ${{ secrets.ADOSOURCEPAT }} -AzureRepoName $($object.AzureRepoName) -ADOCloneURL $($object.ADOCloneURL) -GitHubCloneURL $($object.GitHubCloneURL)
-          Write-Host "---------------------------------------------------------------------------------------------------"
-        }
+      - name: Check out repo        
+        uses: actions/checkout@v2
+      - run: |
+           $ListObject = GC -Path "$($env:GITHUB_WORKSPACE)\ADORepoList.json" | ConvertFrom-Json
+           foreach ($object in $ListObject.RepoList){
+            write-host "--------------- Current syncing for repo $($object.AzureRepoName)----------------------------------"
+            Set-Location $($env:GITHUB_WORKSPACE)
+             .\SynADOtoGitHub.ps1 -GitHubDestinationPAT ${{ secrets.GITHUBDESTINATIONPAT }} -ADOSourcePAT ${{ secrets.ADOSOURCEPAT }} -AzureRepoName $($object.AzureRepoName)  -ADOCloneURL $($object.ADOCloneURL)  -GitHubCloneURL  $($object.GitHubCloneURL)
+            write-host "---------------------------------------------------------------------------------------------------"
+           }
