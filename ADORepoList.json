@@ -1,0 +1,9 @@
+{
+    "RepoList" : [
+    {
+        "AzureRepoName":"demo-sync",
+        "ADOCloneURL":"dev.azure.com/saikumar1919/demo-sync/_git/demo-sync",
+         "GitHubCloneURL":"github.com/kgf147/demo-sync.git"
+    }
+    ]
+}
