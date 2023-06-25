@@ -13,12 +13,11 @@ jobs:
       
     - name: Setup PowerShell
       run: |
-        Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-        Invoke-WebRequest -Uri https://github.com/PowerShell/PowerShell/releases/latest/download/PowerShell-win-x64.zip -OutFile PowerShell.zip
-        Expand-Archive -Path PowerShell.zip -DestinationPath $Env:ProgramFiles
-        $PowerShellFolder = Get-ChildItem -Path $Env:ProgramFiles -Filter 'PowerShell-*' | Select-Object -Last 1
-        Rename-Item -Path "$($PowerShellFolder.FullName)" -NewName 'PowerShell'
-        Set-Variable -Name 'PATH' -Value "$($PowerShellFolder.FullName);$Env:PATH" -Scope 'Environment'
+        $url = "https://github.com/PowerShell/PowerShell/releases/download/v7.2.0/PowerShell-7.2.0-win-x64.msi"
+        $output = "$Env:TEMP\PowerShell.msi"
+        Invoke-WebRequest -Uri $url -OutFile $output
+        Start-Process -FilePath msiexec.exe -ArgumentList "/i $output /quiet /qn /norestart" -Wait
+
       
     - name: Run Sync Script
       run: |
