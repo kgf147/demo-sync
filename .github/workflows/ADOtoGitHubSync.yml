@@ -12,10 +12,14 @@ jobs:
       uses: actions/checkout@v2
       
     - name: Setup PowerShell
-      uses: actions/setup-powershell@v2
-      with:
-        pwsh-version: '7.x'  # Replace with the desired PowerShell version
-
+      run: |
+        Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+        Invoke-WebRequest -Uri https://github.com/PowerShell/PowerShell/releases/latest/download/PowerShell-win-x64.zip -OutFile PowerShell.zip
+        Expand-Archive -Path PowerShell.zip -DestinationPath $Env:ProgramFiles
+        $PowerShellFolder = Get-ChildItem -Path $Env:ProgramFiles -Filter 'PowerShell-*' | Select-Object -Last 1
+        Rename-Item -Path "$($PowerShellFolder.FullName)" -NewName 'PowerShell'
+        Set-Variable -Name 'PATH' -Value "$($PowerShellFolder.FullName);$Env:PATH" -Scope 'Environment'
+      
     - name: Run Sync Script
       run: |
         $ListObject = Get-Content -Path "${{ github.workspace }}/ADORepoList.json" | ConvertFrom-Json
